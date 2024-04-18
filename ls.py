@@ -67,7 +67,7 @@ result = minimize(objective_norm, initial_beta, args=(X_transformed, y), method=
 
 beta_hat = result.x
 print(f'beta_hat by minimizing norm: {beta_hat}')
-beta1_hat, beta2_hat = beta_hat
+beta1_hat, beta2_hat = beta_test
 
 alpha_hat = -beta2_hat
 mu_hat = beta1_hat / alpha_hat
@@ -86,4 +86,7 @@ plt.ylabel('Interest Rate')
 plt.show()
 '''
 
-# alpha_hat:-0.1000038857109704, mu_hat:-1.129300054870608e-06, sigma_hat:26.332670952158626
+# beta_test by solving matrix: [ 0.0080863  -0.00165541]
+# beta_hat by minimizing norm: [0.00154179 0.00150071]
+# alpha_hat:-0.0015007102, mu_hat:-1.0273748, sigma_hat:0.17352194  By minimizing algorithm
+# alpha_hat:0.0016554113, mu_hat:4.884768, sigma_hat:0.17352194 by solving matrix
