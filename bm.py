@@ -16,6 +16,6 @@ for i in range(n):
     plt.plot(t[i:i+2], Bt[i:i+2], 'b')
     plt.xlim(0, T)
     plt.ylim(ymin, ymax)
-    plt.pause(0.0001)
+    plt.pause(0.00001)
     
 plt.show()
