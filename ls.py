@@ -21,6 +21,7 @@ def transformations(X, delta_t):
     x2_i = sqrt_X_ti * delta_t
     
     # Return as matrices/vectors
+    # print(np.vstack((x1_i, x2_i)).T)
     return y_i, np.vstack((x1_i, x2_i)).T
 
 
@@ -28,9 +29,34 @@ def objective_norm(beta, X, y):
     beta = np.reshape(beta, (2, -1))
     return norm(y - X.dot(beta))**2
 
+def matrix_solver(X, delta_t):
+    delta_X = np.diff(X)
+    sqrt_X_ti = np.sqrt(X[:-1])
 
-delta_t = 1/23051  
-t = np.linspace(0, 1, 23051)
+    # Calculate y_i, x1_i, x2_i
+    y_i = delta_X / sqrt_X_ti
+    x1_i = 1 / (delta_t * sqrt_X_ti)
+    x2_i = sqrt_X_ti * delta_t
+    
+    A = np.vstack((x1_i, x2_i)).T
+    AT = np.vstack((x1_i, x2_i))
+    
+    ATA = AT @ A
+    ATy = AT @ y_i
+    
+    beta_hat = np.linalg.solve(ATA, ATy)
+    return beta_hat
+    
+
+
+delta_t = 1
+
+beta_test = matrix_solver(X, delta_t)
+
+print(f'beta_test by solving matrix: {beta_test}')
+
+
+t = np.linspace(0, 23051, 23051)
 
 y, X_transformed = transformations(X, delta_t)
 
@@ -40,6 +66,7 @@ initial_beta = np.array([0.1, 0.1])
 result = minimize(objective_norm, initial_beta, args=(X_transformed, y), method='L-BFGS-B')
 
 beta_hat = result.x
+print(f'beta_hat by minimizing norm: {beta_hat}')
 beta1_hat, beta2_hat = beta_hat
 
 alpha_hat = -beta2_hat
