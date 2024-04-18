@@ -24,9 +24,9 @@ def transformations(X, delta_t):
     return y_i, np.vstack((x1_i, x2_i)).T
 
 
-def objective(beta, X, y):
+def objective_norm(beta, X, y):
     beta = np.reshape(beta, (2, -1))
-    return np.sum((y - X.dot(beta))**2)
+    return norm(y - X.dot(beta))**2
 
 
 delta_t = 1/23051  
@@ -37,7 +37,7 @@ y, X_transformed = transformations(X, delta_t)
 
 initial_beta = np.array([0.1, 0.1])
 
-result = minimize(objective, initial_beta, args=(X_transformed, y), method='L-BFGS-B')
+result = minimize(objective_norm, initial_beta, args=(X_transformed, y), method='L-BFGS-B')
 
 beta_hat = result.x
 beta1_hat, beta2_hat = beta_hat
@@ -51,11 +51,12 @@ sigma_hat = np.sqrt(sigma_hat_squared_delta_t / delta_t)
 print(f"alpha_hat:{alpha_hat:.8g}, mu_hat:{mu_hat:.8g}, sigma_hat:{sigma_hat:.8g}")
 
 
+'''
 plt.plot(t, X)
-
 plt.title(f'Data')
 plt.xlabel('Time')
 plt.ylabel('Interest Rate')
 plt.show()
+'''
 
 # alpha_hat:-0.1000038857109704, mu_hat:-1.129300054870608e-06, sigma_hat:26.332670952158626
