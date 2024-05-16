@@ -1,16 +1,19 @@
 
 import numpy as np
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
+
 # Parameters
-alpha = -0.0015016954
-mu = -1.0269183
+alpha = 0.0016554113
+mu = 4.884768
 sigma = 0.17352199
 initial_condition = 1.13
 T = 23051
 N = 23051
 dt = T / N
-num_paths = 500
+num_paths = 1000
 
 # Array to store paths
 X_paths = np.zeros((num_paths, N+1))

@@ -10,6 +10,7 @@ X = X.to_numpy()
 X = np.flip(X)
 
 
+
 def transformations(X, delta_t):
 
     delta_X = np.diff(X)
@@ -25,9 +26,9 @@ def transformations(X, delta_t):
     return y_i, np.vstack((x1_i, x2_i)).T
 
 
-def objective_norm(beta, X, y):
+def objective_norm(beta, A, y):
     beta = np.reshape(beta, (2, -1))
-    return norm(y - X.dot(beta))**2
+    return norm(y - A @ (beta))**2
 
 def matrix_solver(X, delta_t):
     delta_X = np.diff(X)
@@ -76,15 +77,15 @@ sigma_hat_squared_delta_t = np.sum(residuals**2) / len(y)
 sigma_hat = np.sqrt(sigma_hat_squared_delta_t / delta_t)
 
 print(f"alpha_hat:{alpha_hat:.8g}, mu_hat:{mu_hat:.8g}, sigma_hat:{sigma_hat:.8g}")
+mean = X[0]*np.exp(-alpha_hat*23051) + mu_hat*(1-np.exp(-alpha_hat*23051))
+variance = X[0]*(sigma_hat*sigma_hat/alpha_hat)*(np.exp(-alpha_hat*23051)-np.exp(-2*alpha_hat*23051)) + (mu_hat*sigma_hat*sigma_hat/(2*alpha_hat))*((1-np.exp(-alpha_hat*23051))*(1-np.exp(-alpha_hat*23051)))
+print(f"The mean of the path is {mean}. The variance of the path is {variance}")
 
-
-'''
 plt.plot(t, X)
 plt.title(f'Data')
 plt.xlabel('Time')
 plt.ylabel('Interest Rate')
 plt.show()
-'''
 
 # beta_test by solving matrix: [ 0.0080863  -0.00165541]
 # beta_hat by minimizing norm: [0.00154179 0.00150071]
