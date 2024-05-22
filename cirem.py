@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 
 
 # Parameters
-alpha = 0.0016554113
-mu = 4.884768
-sigma = 0.17352199
+alpha = 0.008767448711324647
+mu = 4.893875683463864
+sigma = -0.06480797620918553
 initial_condition = 1.13
 T = 23051
 N = 23051
