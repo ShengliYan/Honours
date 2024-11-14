@@ -5,11 +5,15 @@ from scipy.optimize import minimize
 import matplotlib.pyplot as plt
 
 data = pd.read_csv('data.csv')
-X = data['federal_funds'].iloc[0:23051]
+X = data['federal_funds'].iloc[13051:23051]
 X = X.to_numpy()
 X = np.flip(X)
 
+seed = 42
+np.random.seed(seed)
 
+T = 40
+N = 9999
 
 def transformations(X, delta_t):
 
@@ -18,7 +22,7 @@ def transformations(X, delta_t):
     
     # Calculate y_i, x1_i, x2_i
     y_i = delta_X / sqrt_X_ti
-    x1_i = 1 / (delta_t * sqrt_X_ti)
+    x1_i = delta_t / sqrt_X_ti
     x2_i = sqrt_X_ti * delta_t
     
     # Return as matrices/vectors
@@ -36,7 +40,7 @@ def matrix_solver(X, delta_t):
 
     # Calculate y_i, x1_i, x2_i
     y_i = delta_X / sqrt_X_ti
-    x1_i = 1 / (delta_t * sqrt_X_ti)
+    x1_i = delta_t / sqrt_X_ti
     x2_i = sqrt_X_ti * delta_t
     
     A = np.vstack((x1_i, x2_i)).T
@@ -50,21 +54,21 @@ def matrix_solver(X, delta_t):
     
 
 
-delta_t = 1
+delta_t = T/N
 
 beta_test = matrix_solver(X, delta_t)
 
 print(f'beta_test by solving matrix: {beta_test}')
 
 
-t = np.linspace(0, 23051, 23051)
+t = np.linspace(0, T, N + 1)
 
 y, X_transformed = transformations(X, delta_t)
 
 
 initial_beta = np.array([0.1, 0.1])
 
-result = minimize(objective_norm, initial_beta, args=(X_transformed, y), method='L-BFGS-B')
+result = minimize(objective_norm, initial_beta, args=(X_transformed, y), method='Nelder-Mead')
 
 beta_hat = result.x
 print(f'beta_hat by minimizing norm: {beta_hat}')
@@ -72,13 +76,14 @@ beta1_hat, beta2_hat = beta_test
 
 alpha_hat = -beta2_hat
 mu_hat = beta1_hat / alpha_hat
-residuals = y - X_transformed.dot(beta_hat)
+residuals = y - X_transformed.dot(beta_test)
 sigma_hat_squared_delta_t = np.sum(residuals**2) / len(y)
 sigma_hat = np.sqrt(sigma_hat_squared_delta_t / delta_t)
 
 print(f"alpha_hat:{alpha_hat:.8g}, mu_hat:{mu_hat:.8g}, sigma_hat:{sigma_hat:.8g}")
-mean = X[0]*np.exp(-alpha_hat*23051) + mu_hat*(1-np.exp(-alpha_hat*23051))
-variance = X[0]*(sigma_hat*sigma_hat/alpha_hat)*(np.exp(-alpha_hat*23051)-np.exp(-2*alpha_hat*23051)) + (mu_hat*sigma_hat*sigma_hat/(2*alpha_hat))*((1-np.exp(-alpha_hat*23051))*(1-np.exp(-alpha_hat*23051)))
+
+mean = X[0]*np.exp(-alpha_hat*T) + mu_hat*(1-np.exp(-alpha_hat*T))
+variance = X[0]*(sigma_hat*sigma_hat/alpha_hat)*(np.exp(-alpha_hat*T)-np.exp(-2*alpha_hat*T)) + (mu_hat*sigma_hat*sigma_hat/(2*alpha_hat))*((1-np.exp(-alpha_hat*T))*(1-np.exp(-alpha_hat*T)))
 print(f"The mean of the path is {mean}. The variance of the path is {variance}")
 
 plt.plot(t, X)
@@ -91,3 +96,5 @@ plt.show()
 # beta_hat by minimizing norm: [0.00154179 0.00150071]
 # alpha_hat:-0.0015007102, mu_hat:-1.0273748, sigma_hat:0.17352194  By minimizing algorithm
 # alpha_hat:0.0016554113, mu_hat:4.884768, sigma_hat:0.17352194 by solving matrix
+
+# alpha_hat:6.0004554, mu_hat:5.6772106, sigma_hat:3.7708843

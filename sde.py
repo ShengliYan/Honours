@@ -2,14 +2,21 @@ import torch
 import torchsde
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
+
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+sys.setrecursionlimit(1500)
+torch.manual_seed(42)
 
 # Parameters for Vasicek model
-alpha = -0.1000038857109704
-mu = -1.129300054870608 * 0.000001
-sigma = 26.332670952158626
+alpha = 0.1
+mu = 5
+sigma = 1
 
-batch_size, state_size, brownian_size = 10, 1, 1
-t_size = 1000
+batch_size, state_size, brownian_size = 100, 1, 1
+t_size = 10000
 
 class VasicekSDE(torch.nn.Module):
     noise_type = 'diagonal'
@@ -24,11 +31,11 @@ class VasicekSDE(torch.nn.Module):
 
     # Diffusion function for Vasicek model
     def g(self, t, y):
-        return sigma * torch.ones(batch_size, state_size)
+        return sigma * torch.sqrt(torch.clamp(y, min=0))
 
 sde_vasicek = VasicekSDE()
-y0_vasicek = torch.full((batch_size, state_size), 0.03)  # Starting at the mean value
-ts_vasicek = torch.linspace(0, 1, t_size)  # Adjust time interval as needed
+y0_vasicek = torch.full((batch_size, state_size), 1.13)  # Starting at the mean value
+ts_vasicek = torch.linspace(0, 100, t_size)  # Adjust time interval as needed
 
 # Solve the SDE using torchsde.sdeint
 ys_vasicek = torchsde.sdeint(sde_vasicek, y0_vasicek, ts_vasicek, method='euler')
@@ -51,7 +58,7 @@ plt.figure(figsize=(8, 6))
 for i in range(batch_size):
     plt.plot(t_values_vasicek, y_values_vasicek[:, i], label=f'Path {i+1}')
 
-plt.title('Sample Paths of Vasicek Model')
+plt.title('Sample Paths of CIR Model')
 plt.xlabel('Time (t)')
 plt.ylabel('X(t)')
 plt.grid(True)
